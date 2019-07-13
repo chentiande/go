@@ -11,10 +11,18 @@ import (
 
     _ "github.com/mattn/go-oci8"
     "github.com/360EntSecGroup-Skylar/excelize"
+    "github.com/axgle/mahonia"
 )
+func ConvertToString(src string, srcCode string, tagCode string) string {
+    srcCoder := mahonia.NewDecoder(srcCode)
+    srcResult := srcCoder.ConvertString(src)
+    tagCoder := mahonia.NewDecoder(tagCode)
+    _, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
+    result := string(cdata)
+    return result
+}
 
 func query() {
-    os.Setenv("NLS_LANG", "Simplified Chinese_China.AL32UTF8")
     log.SetFlags(log.Lshortfile | log.LstdFlags)
     f := excelize.NewFile()
     //db, err := sql.Open("oci8", "system/system@192.168.1.86:1521/ORCLCDB")
@@ -52,7 +60,11 @@ func query() {
             if raw == nil {
                 result[i] = ""
             } else {
-                result[i] = string(raw)
+                if os.Args[4]=="Y"||os.Args[4]=="y" {
+                result[i] = ConvertToString(string(raw), "gbk", "utf-8")
+                   }else{
+                 result[i] =string(raw)
+                        }
             }
         }
     for m := range result{
@@ -77,9 +89,9 @@ func query() {
 }
 
 func main() {
-     if len(os.Args)!=4{
-     fmt.Println("参数设置不正确,需要包含三个参数:连接串,包含sql的文件名,保存的excel文件名")
-     fmt.Println("./DbUnloadExcel user/passwd@ip:port/service_name objects.sql object.xlsx")
+     if len(os.Args)!=5{
+     fmt.Println("参数设置不正确,需要包含四个参数:连接串,包含sql的文件名,保存的excel文件名,是否GBK编码")
+     fmt.Println("./DbUnloadExcel user/passwd@ip:port/service_name objects.sql object.xlsx Y|N")
      fmt.Println("如有其它问题请联系chentiande@boco.com.cn")
      }else {
   
