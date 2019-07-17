@@ -38,8 +38,13 @@ func query() {
         fmt.Println("ioutil ReadFile error: ", err)
         return
     }
-    fmt.Printf("sql=%v",string(b))
-    rows, err := db.Query(strings.Replace(string(b),";","",-1))
+    strsql:=strings.Replace(string(b),";","",-1)
+    fmt.Printf("sql=%v", strsql)
+    if os.Args[4]=="Y"||os.Args[4]=="y" {
+    enc := mahonia.NewEncoder("gbk")
+    strsql= enc.ConvertString(strsql)
+        }
+    rows, err := db.Query(strsql)
     if err != nil {
         log.Fatal(err)
     }
