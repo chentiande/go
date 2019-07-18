@@ -13,6 +13,7 @@ import (
     "github.com/360EntSecGroup-Skylar/excelize"
     "github.com/axgle/mahonia"
 )
+//增加GBK到utf8函数转换，将数据库取出的数据转成uft8然后保存到excel
 func ConvertToString(src string, srcCode string, tagCode string) string {
     srcCoder := mahonia.NewDecoder(srcCode)
     srcResult := srcCoder.ConvertString(src)
@@ -27,6 +28,7 @@ func query() {
     f := excelize.NewFile()
     //db, err := sql.Open("oci8", "system/system@192.168.1.86:1521/ORCLCDB")
      str:=os.Args[1]
+  //解决密码中有特殊字符进行转义后去掉转义斜杠
      str=strings.Replace(str, "\\", "", -1)
     db, err := sql.Open("oci8", str)
     if err != nil {
@@ -38,8 +40,10 @@ func query() {
         fmt.Println("ioutil ReadFile error: ", err)
         return
     }
+//sql语句中末尾如果有分号，自动去掉
     strsql:=strings.Replace(string(b),";","",-1)
     fmt.Printf("sql=%v", strsql)
+//如果配置了第四个参数，将进行字符转换，将sql语句中的中文从utf8转为GBK，然后提交数据库
     if os.Args[4]=="Y"||os.Args[4]=="y" {
     enc := mahonia.NewEncoder("gbk")
     strsql= enc.ConvertString(strsql)
@@ -65,6 +69,7 @@ func query() {
             if raw == nil {
                 result[i] = ""
             } else {
+//第四个参数确定是否数据库需要GBK到utf的转码
                 if os.Args[4]=="Y"||os.Args[4]=="y" {
                 result[i] = ConvertToString(string(raw), "gbk", "utf-8")
                    }else{
