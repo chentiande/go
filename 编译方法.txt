@@ -1,0 +1,4 @@
+192.168.1.86
+
+[root@oradb go_src]#  export  PKG_CONFIG_PATH=/root/go/src/github.com/mattn/go-oci8
+[root@oradb go_src]# go build DbUnloadExcel.go
